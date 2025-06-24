@@ -1,7 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-export const txnStore: Record<string, any> = {}; // memory store
+interface TransactionData {
+  key: string;
+  client_txn_id: string;
+  amount: number;
+  p_info: string;
+  customer_name: string;
+  customer_email: string;
+  customer_mobile: string;
+  redirect_url: string;
+  udf1: string;
+  udf2: string;
+  udf3: string;
+  createdAt: string;
+  status: string;
+  payment_url: string;
+  qr_code_url?: string;
+}
+
+export const txnStore: Record<string, TransactionData> = {};
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -38,7 +56,7 @@ export async function POST(req: NextRequest) {
     customer_mobile: customer_mobile || "9999999999",
     redirect_url:
       process.env.NEXT_PUBLIC_UPI_REDIRECT_URL ||
-      "https://www.ortusfinance.in/",
+      "https://www.upi-gateway-api.app/",
     udf1: "NA",
     udf2: "NA",
     udf3: "NA",
@@ -96,17 +114,20 @@ export async function POST(req: NextRequest) {
       upi_link: paymentUrl,
       status: "pending",
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const error = err as Error & {
+      response?: { data?: unknown; status?: number };
+    };
     console.error("API Error:", {
-      message: err.message,
-      response: err.response?.data,
-      status: err.response?.status,
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
     });
 
     return NextResponse.json(
       {
         error: "Failed to create order",
-        details: err.response?.data || err.message,
+        details: error.response?.data || error.message,
       },
       { status: 500 }
     );

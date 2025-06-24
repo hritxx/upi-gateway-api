@@ -48,14 +48,17 @@ export async function GET(req: NextRequest) {
 
     // Update our store if we get a response
     if (txnStore[txn_id]) {
+      //@ts-expect-error we are updating the existing transaction
       txnStore[txn_id].status = responseData.status || "pending";
     }
 
     return NextResponse.json(responseData);
-  } catch (err: any) {
-    console.error("Payment check error:", err.response?.data || err.message);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error";
+    const errorData = axios.isAxiosError(err) ? err.response?.data : undefined;
+    console.error("Payment check error:", errorData || errorMessage);
     return NextResponse.json(
-      { error: "Unable to fetch status", details: err.message },
+      { error: "Unable to fetch status", details: errorMessage },
       { status: 400 }
     );
   }

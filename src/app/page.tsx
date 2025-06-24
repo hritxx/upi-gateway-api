@@ -1,11 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
+
+interface QRData {
+  qr_code_url: string;
+  upi_link: string;
+}
 
 export default function UPIPaymentPage() {
   const [amount, setAmount] = useState("10.00");
   const [txnId, setTxnId] = useState("");
-  const [qrData, setQrData] = useState<any>(null);
+  const [qrData, setQrData] = useState<QRData | null>(null);
   const [status, setStatus] = useState<"pending" | "success" | "failed" | null>(
     null
   );
@@ -37,9 +43,9 @@ export default function UPIPaymentPage() {
 
       setQrData(data);
       setStatus("pending");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Order creation failed:", err);
-      setError(err.message || "Failed to create order");
+      setError(err instanceof Error ? err.message : "Failed to create order");
       setTxnId(""); // Reset transaction ID on error
     } finally {
       setLoading(false);
@@ -96,11 +102,14 @@ export default function UPIPaymentPage() {
 
       {qrData && (
         <div className="mt-6">
-          <img
+          <Image
             src={qrData.qr_code_url}
             alt="Scan to Pay"
             className="w-64 h-64"
-            onError={(e) => {
+            width={256}
+            height={256}
+            loading="lazy"
+            onError={() => {
               console.error("QR code image failed to load");
               setError("QR code image could not be loaded");
             }}

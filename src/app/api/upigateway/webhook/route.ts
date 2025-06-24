@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     txnStore[txnId] = {
       ...txnStore[txnId],
       ...data,
-      status: data.status,
+      status: data.status as string,
     };
   }
 
