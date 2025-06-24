@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { txnStore } from "../../create-upi-order/route";
+import { txnStore } from "@/utils/txnStore";
 import qs from "qs";
 
 export async function POST(req: NextRequest) {

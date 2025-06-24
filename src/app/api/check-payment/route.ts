@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { txnStore } from "../create-upi-order/route";
+import { txnStore } from "@/utils/txnStore";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

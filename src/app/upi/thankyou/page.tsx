@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 
-export default function ThankYou() {
+function ThankYouContent() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -59,5 +59,25 @@ export default function ThankYou() {
         </a>
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="p-10 text-center">
+      <h1 className="text-3xl font-bold mb-6">Payment Status</h1>
+      <div className="animate-pulse">
+        <div className="bg-gray-200 h-4 w-3/4 mx-auto rounded mb-4"></div>
+        <div className="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
+      </div>
+    </div>
+  );
+}
+
+export default function ThankYou() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ThankYouContent />
+    </Suspense>
   );
 }
