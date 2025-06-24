@@ -35,6 +35,7 @@ export default function UPIPaymentPage() {
         throw new Error(data.error || `HTTP error! status: ${res.status}`);
       }
 
+      console.log("QR Data received:", data);
       setQrData(data);
       setStatus("pending");
     } catch (err: any) {
@@ -54,7 +55,7 @@ export default function UPIPaymentPage() {
         const res = await fetch(`/api/check-payment?txn_id=${txnId}`);
         const data = await res.json();
 
-        if (res.ok && data.status !== "pending") {
+        if (res.ok && data.status && data.status !== "pending") {
           setStatus(data.status);
           clearInterval(interval);
         }
@@ -73,7 +74,7 @@ export default function UPIPaymentPage() {
       <div className="mt-4">
         <input
           type="number"
-          className="border p-2"
+          className="border p-2 rounded"
           placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
@@ -96,18 +97,23 @@ export default function UPIPaymentPage() {
 
       {qrData && (
         <div className="mt-6">
-          <img
-            src={qrData.qr_code_url}
-            alt="Scan to Pay"
-            className="w-64 h-64"
-            onError={(e) => {
-              console.error("QR code image failed to load");
-              setError("QR code image could not be loaded");
-            }}
-          />
+          {qrData.qr_code_url && (
+            <img
+              src={qrData.qr_code_url}
+              alt="Scan to Pay"
+              className="w-64 h-64 border"
+              onError={(e) => {
+                console.error("QR code image failed to load");
+                setError("QR code image could not be loaded");
+              }}
+            />
+          )}
           <p className="mt-2">
             or{" "}
-            <a href={qrData.upi_link} className="text-blue-600 underline">
+            <a
+              href={qrData.payment_url || qrData.upi_link}
+              className="text-blue-600 underline"
+            >
               Pay via UPI App
             </a>
           </p>
