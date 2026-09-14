@@ -26,7 +26,7 @@ export default function UPIPaymentPage() {
     setTxnId(txn);
 
     try {
-      const res = await fetch("/api/create-upi-order", {
+      const res = await fetch("/api/test", {
         method: "POST",
         body: JSON.stringify({
           amount,

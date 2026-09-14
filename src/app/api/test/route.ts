@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { txnStore } from "@/utils/txnStore"; // Assuming txnStore is defined in a separate file
+
+// Simple in-memory store for demo purposes
+export const txnStore: Record<string, any> = {}; // memory store
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest) {
     customer_mobile: customer_mobile || "9999999999",
     redirect_url:
       process.env.NEXT_PUBLIC_UPI_REDIRECT_URL ||
-      "https://www.upi-gateway-api.app/",
+      "https://www.ortusfinance.in/",
     udf1: "NA",
     udf2: "NA",
     udf3: "NA",
@@ -69,8 +71,6 @@ export async function POST(req: NextRequest) {
       responseData?.qr_code_url ||
       responseData?.qr_code;
 
-    console.log("Payment URL:", paymentUrl, "QR Code URL:", qrCodeUrl);
-
     if (!paymentUrl) {
       console.error("No payment URL in response:", responseData);
       return NextResponse.json(
@@ -97,20 +97,17 @@ export async function POST(req: NextRequest) {
       upi_link: paymentUrl,
       status: "pending",
     });
-  } catch (err: unknown) {
-    const error = err as Error & {
-      response?: { data?: unknown; status?: number };
-    };
+  } catch (err: any) {
     console.error("API Error:", {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status,
     });
 
     return NextResponse.json(
       {
         error: "Failed to create order",
-        details: error.response?.data || error.message,
+        details: err.response?.data || err.message,
       },
       { status: 500 }
     );
